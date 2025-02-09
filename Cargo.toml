@@ -49,6 +49,9 @@ interprocess = "^2"
 # Support for special chars.
 base64 = "^0.22"
 
+# For checking if steam is running.
+sysinfo = "^0"
+
 # Windows resources support.
 [target.'cfg(windows)'.build-dependencies]
 winres = "^0.1"

@@ -40,6 +40,13 @@ fn main() {
         warn!("Logging initialization has failed. No logs will be saved.");
     }
 
+    // Check that Steam is running, so any usage of the Steamworks API doesn't silently fail.
+    let sys = sysinfo::System::new_with_specifics(sysinfo::RefreshKind::everything().with_processes(sysinfo::ProcessRefreshKind::everything()));
+    if sys.processes_by_exact_name("steam.exe".as_ref()).count() == 0 {
+        error!("Steam is not running. Make sure Steam is running or this tool will not work as expected.");
+        exit(1)
+    }
+
     // Parse the entire cli command.
     let cli = Cli::parse();
     info!("{:?}", cli.command);
