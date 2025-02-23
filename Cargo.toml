@@ -1,11 +1,11 @@
 [package]
 name = "workshopper"
 build = "build.rs"
-
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-rust-version.workspace = true
+version = "0.9.100"
+rust-version = "1.67"
+edition = "2021"
+description = "A tool to interact with the Steam Workshops."
+authors = ["Frodo45127 <frodo_gv@hotmail.com>"]
 
 [dependencies]
 
