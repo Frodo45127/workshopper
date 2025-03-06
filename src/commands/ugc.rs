@@ -102,28 +102,28 @@ pub enum SteamWorksThreadMessage {
 impl From<&QueryResult> for QueryResultDerive {
     fn from(value: &QueryResult) -> Self {
         Self {
-            published_file_id: value.published_file_id.clone(),
-            creator_app_id: value.creator_app_id.clone(),
-            consumer_app_id: value.consumer_app_id.clone(),
+            published_file_id: value.published_file_id,
+            creator_app_id: value.creator_app_id,
+            consumer_app_id: value.consumer_app_id,
             title: value.title.clone(),
             description: value.description.clone(),
-            owner: value.owner.clone(),
-            time_created: value.time_created.clone(),
-            time_updated: value.time_updated.clone(),
-            time_added_to_user_list: value.time_added_to_user_list.clone(),
+            owner: value.owner,
+            time_created: value.time_created,
+            time_updated: value.time_updated,
+            time_added_to_user_list: value.time_added_to_user_list,
             visibility: PublishedFileVisibilityDerive::from(value.visibility),
-            banned: value.banned.clone(),
-            accepted_for_use: value.accepted_for_use.clone(),
+            banned: value.banned,
+            accepted_for_use: value.accepted_for_use,
             tags: value.tags.clone(),
-            tags_truncated: value.tags_truncated.clone(),
+            tags_truncated: value.tags_truncated,
             file_name: value.file_name.to_owned(),
             file_type: FileTypeDerive::from(value.file_type),
-            file_size: value.file_size.clone(),
+            file_size: value.file_size,
             url: value.url.clone(),
-            num_upvotes: value.num_upvotes.clone(),
-            num_downvotes: value.num_downvotes.clone(),
-            score: value.score.clone(),
-            num_children: value.num_children.clone()
+            num_upvotes: value.num_upvotes,
+            num_downvotes: value.num_downvotes,
+            score: value.score,
+            num_children: value.num_children
         }
     }
 }
@@ -189,7 +189,7 @@ pub fn published_file_details(steam_id: u32, published_file_ids: &str, ipc_chann
     let response = rx_query.recv()?;
     match response {
         SteamWorksThreadMessage::QueryResults(results) => {
-            let results = results.iter().map(|result| QueryResultDerive::from(result)).collect::<Vec<_>>();
+            let results = results.iter().map(QueryResultDerive::from).collect::<Vec<_>>();
             if let Ok(message) = to_string_pretty(&results) {
 
                 if let Ok(mut stream) = LocalSocketStream::connect(ipc_channel.to_ns_name::<GenericNamespaced>()?) {
@@ -203,13 +203,11 @@ pub fn published_file_details(steam_id: u32, published_file_ids: &str, ipc_chann
                     file.write_all(to_string_pretty(&results)?.as_bytes())?;
                     file.flush()?;
                 }
-            } else {
-                if let Ok(mut stream) = LocalSocketStream::connect(ipc_channel.to_ns_name::<GenericNamespaced>()?) {
-                    let _ = stream.write(b"{}");
-                }
+            } else if let Ok(mut stream) = LocalSocketStream::connect(ipc_channel.to_ns_name::<GenericNamespaced>()?) {
+                let _ = stream.write(b"{}");
             }
 
-            return finish(tx, callback_thread)
+            finish(tx, callback_thread)
         },
         SteamWorksThreadMessage::Error(error) => {
 
@@ -218,10 +216,10 @@ pub fn published_file_details(steam_id: u32, published_file_ids: &str, ipc_chann
             }
 
             finish(tx, callback_thread)?;
-            return Err(error)
+            Err(error)
         },
         _ => panic!("{response:?}")
-    };
+    }
 }
 
 /// This function is used to upload a new mod to the Workshop. For updating mods, do not use this. Use update instead.
@@ -486,7 +484,7 @@ pub fn download_subscribed_mods(steam_id: u32, published_file_ids: Option<String
 
     // Get the published_file_ids.
     let published_file_ids = match published_file_ids {
-        Some(ids) => ids.split(",").filter_map(|x| x.parse::<u64>().ok()).map(|x| PublishedFileId(x)).collect(),
+        Some(ids) => ids.split(",").filter_map(|x| x.parse::<u64>().ok()).map(PublishedFileId).collect(),
         None => ugc.subscribed_items(),
     };
 
@@ -642,10 +640,8 @@ fn get_published_file_details(ugc: &UGC<ClientManager>, sender: Sender<SteamWork
 
                             // We need to process the results before sending them.
                             let mut processed_results = vec![];
-                            for result in results.iter() {
-                                if let Some(result) = result {
-                                    processed_results.push(result);
-                                }
+                            for result in results.iter().flatten() {
+                                processed_results.push(result);
                             }
 
                             let _ = sender.send(SteamWorksThreadMessage::QueryResults(processed_results));
