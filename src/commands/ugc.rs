@@ -197,12 +197,12 @@ pub fn published_file_details(steam_id: u32, published_file_ids: &str, ipc_chann
                 }
 
                 // In debug mode, dump the response to a file so we can see errors on it.
-                if cfg!(debug_assertions) {
-                    let path = PathBuf::from("get_published_file_details.json");
-                    let mut file = BufWriter::new(File::create(path)?);
-                    file.write_all(to_string_pretty(&results)?.as_bytes())?;
-                    file.flush()?;
-                }
+                //if cfg!(debug_assertions) {
+                //    let path = PathBuf::from("get_published_file_details.json");
+                //    let mut file = BufWriter::new(File::create(path)?);
+                //    file.write_all(to_string_pretty(&results)?.as_bytes())?;
+                //    file.flush()?;
+                //}
             } else if let Ok(mut stream) = LocalSocketStream::connect(ipc_channel.to_ns_name::<GenericNamespaced>()?) {
                 let _ = stream.write(b"{}");
             }
