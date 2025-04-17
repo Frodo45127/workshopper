@@ -29,6 +29,12 @@ use rpfm_lib::integrations::log::*;
 
 use crate::app::{Cli, Commands};
 
+#[cfg(target_os = "windows")]
+const STEAM_PROCESS_NAME: &str = "steam.exe";
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+const STEAM_PROCESS_NAME: &str = "steam";
+
 mod app;
 mod commands;
 
@@ -40,9 +46,7 @@ fn main() {
         warn!("Logging initialization has failed. No logs will be saved.");
     }
 
-    // Check that Steam is running, so any usage of the Steamworks API doesn't silently fail.
-    let sys = sysinfo::System::new_with_specifics(sysinfo::RefreshKind::everything().with_processes(sysinfo::ProcessRefreshKind::everything()));
-    if sys.processes_by_exact_name("steam.exe".as_ref()).count() == 0 {
+    if !is_steam_running() {
         error!("Steam is not running. Make sure Steam is running or this tool will not work as expected.");
         exit(1)
     }
@@ -81,4 +85,11 @@ fn main() {
             exit(1);
         },
     }
+}
+
+pub fn is_steam_running() -> bool {
+    let refresh_kind = sysinfo::RefreshKind::everything()
+        .with_processes(sysinfo::ProcessRefreshKind::everything());
+    let sys = sysinfo::System::new_with_specifics(refresh_kind);
+    sys.processes_by_exact_name(STEAM_PROCESS_NAME.as_ref()).count() > 0
 }

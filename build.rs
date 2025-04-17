@@ -16,13 +16,26 @@ fn main() {
 
     // Copy the dll needed for workshopper to work. Allow an error for cases like using this as a submodule.
     let _ = std::fs::copy("./3rdparty/steam_api64.dll", "./target/debug/steam_api64.dll");
+    let _ = std::fs::copy("./3rdparty/steam_api64.dll", "./target/release/steam_api64.dll");
     println!("cargo:rustc-link-lib=dylib=steam_api64");
 }
 
 /// Linux Build Script.
 #[cfg(target_os = "linux")]
-fn main() {}
+fn main() {
+
+    // Copy the .so needed for workshopper to work. Allow an error for cases like using this as a submodule.
+    let _ = std::fs::copy("./3rdparty/libsteam_api.so", "./target/debug/libsteam_api.so");
+    let _ = std::fs::copy("./3rdparty/libsteam_api.so", "./target/release/libsteam_api.so");
+    println!("cargo:rustc-link-lib=dylib=steam_api");
+}
 
 /// MacOS Build Script.
 #[cfg(target_os = "macos")]
-fn main() {}
+fn main() {
+
+    // Copy the .dylib needed for workshopper to work. Allow an error for cases like using this as a submodule.
+    let _ = std::fs::copy("./3rdparty/libsteam_api.dylib", "./target/debug/libsteam_api.dylib");
+    let _ = std::fs::copy("./3rdparty/libsteam_api.dylib", "./target/release/libsteam_api.dylib");
+    println!("cargo:rustc-link-lib=dylib=steam_api");
+}
