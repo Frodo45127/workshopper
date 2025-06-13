@@ -18,8 +18,8 @@ use serde_json::to_string_pretty;
 use steamworks::{AppId, Client, ClientManager, DownloadItemResult, FileType, PublishedFileId, PublishedFileVisibility, QueryResult, SingleClient, SteamId, UpdateStatus, UpdateWatchHandle, UGC};
 
 use std::fmt::Write as FmtWrite;
-use std::fs::{DirBuilder, File};
-use std::io::{BufWriter, Write};
+use std::fs::DirBuilder;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::thread::JoinHandle;
 
